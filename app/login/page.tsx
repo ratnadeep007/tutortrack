@@ -1,6 +1,6 @@
 'use client';
 import { GalleryVerticalEnd } from 'lucide-react';
-
+import { Suspense } from 'react';
 import { LoginForm } from '@/components/login-form';
 import { Toaster } from '@/components/ui/toaster';
 import { redirect, useSearchParams } from 'next/navigation';
@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import useSupabaseClient from '@/lib/supabase/client';
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const supabase = useSupabaseClient();
@@ -45,5 +45,13 @@ export default function LoginPage() {
         <Toaster />
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }
