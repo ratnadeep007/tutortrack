@@ -14,4 +14,8 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm run lint
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env
       - run: npm run build
