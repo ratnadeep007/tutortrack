@@ -15,6 +15,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { signOut } from '@/lib/actions/auth/action';
 import useSupabaseClient from '@/lib/supabase/client';
 import { redirect } from 'next/navigation';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function DashboardLayout({
   children,
@@ -71,15 +72,18 @@ export default function DashboardLayout({
                     {pathname || 'Dashboard'}
                   </h1>
                 </div>
-                <form
-                  action={async () => {
-                    await signOut();
-                  }}
-                >
-                  <Button className="text-sm p-2" variant="outline">
-                    Sign out
-                  </Button>
-                </form>
+                <div className="flex flex-row justify-start items-center gap-2">
+                  <ThemeSwitcher />
+                  <form
+                    action={async () => {
+                      await signOut();
+                    }}
+                  >
+                    <Button className="text-sm p-2" variant="outline">
+                      Sign out
+                    </Button>
+                  </form>
+                </div>
               </div>
             </SidebarHeader>
             <div className="px-3">{children}</div>

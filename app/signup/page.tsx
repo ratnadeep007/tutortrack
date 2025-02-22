@@ -1,6 +1,6 @@
-import { GalleryVerticalEnd } from "lucide-react"
+import { GalleryVerticalEnd } from 'lucide-react';
 
-import { SignupForm } from "@/components/signup-form"
+import { SignupForm } from '@/components/signup-form';
 
 export default function SignupPage() {
   return (
@@ -10,10 +10,10 @@ export default function SignupPage() {
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          Acme Inc.
+          TutorTrack
         </a>
         <SignupForm />
       </div>
     </div>
-  )
-} 
+  );
+}

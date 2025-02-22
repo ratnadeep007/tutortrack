@@ -65,7 +65,7 @@ export default function DashboardPage() {
           No exams found. Create your first exam!
         </div>
       ) : (
-        <div className="grid grid-cols-3 md:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           {exams?.map((exam: Exam) => (
             <ExamDetailCard
               key={exam.id}

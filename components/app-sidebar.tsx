@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import {
+  AudioWaveform,
+  Command,
   File,
   Frame,
   GalleryVerticalEnd,
@@ -33,20 +35,20 @@ const data = {
   },
   teams: [
     {
-      name: 'Acme Inc',
+      name: 'MentorTrack',
       logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
+      plan: 'Mentor',
     },
-    // {
-    //   name: "Acme Corp.",
-    //   logo: AudioWaveform,
-    //   plan: "Startup",
-    // },
-    // {
-    //   name: "Evil Corp.",
-    //   logo: Command,
-    //   plan: "Free",
-    // },
+    {
+      name: 'StudentTrack',
+      logo: AudioWaveform,
+      plan: 'Student',
+    },
+    {
+      name: 'AdminTrack',
+      logo: Command,
+      plan: 'Admin',
+    },
   ],
   navMain: [
     {
