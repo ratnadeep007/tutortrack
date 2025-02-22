@@ -34,18 +34,27 @@ export default function DashboardLayout({
   useEffect(() => {
     // Check profile completion
     const checkProfile = async () => {
-      const { data: user } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      console.log('user', user);
       if (user) {
-        const { data: isComplete, error: profileError } = await supabase.rpc(
-          'is_profile_complete',
-          { user_auth_id: user.user?.id }
-        );
+        try {
+          const { data: isComplete, error: profileError } = await supabase.rpc(
+            'is_profile_complete',
+            { user_auth_id: user.id }
+          );
 
-        if (profileError) {
-          console.error('Error checking profile:', profileError);
-        } else {
-          setProfileComplete(isComplete);
+          if (profileError) {
+            console.error('Error checking profile:', profileError);
+          } else {
+            setProfileComplete(isComplete);
+          }
+        } catch (error) {
+          console.error('Error checking profile:', error);
         }
+      } else {
+        setProfileComplete(false);
       }
     };
     checkProfile();
