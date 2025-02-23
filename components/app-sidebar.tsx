@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import {
   AudioWaveform,
@@ -11,11 +9,14 @@ import {
   PieChart,
   Settings2,
   Users,
+  LayoutDashboard,
+  UserCog,
+  School,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
 // import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from '@/components/nav-user';
+// import { NavUser } from '@/components/nav-user';
 import { TeamSwitcher } from '@/components/team-switcher';
 import {
   Sidebar,
@@ -24,7 +25,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import useSupabaseClient from '@/lib/supabase/client';
+// import { useUserStore } from '@/lib/store/user-store';
 
 // This is sample data.
 const data = {
@@ -96,6 +97,56 @@ const data = {
       ],
     },
   ],
+  adminNav: [
+    {
+      title: 'Dashboard',
+      url: '/dashboard',
+      icon: LayoutDashboard,
+    },
+    {
+      title: 'User Management',
+      url: '/dashboard/users',
+      icon: UserCog,
+      items: [
+        {
+          title: 'All Users',
+          url: '/dashboard/users',
+        },
+        {
+          title: 'Teachers',
+          url: '/dashboard/users/teachers',
+        },
+        {
+          title: 'Students',
+          url: '/dashboard/users/students',
+        },
+      ],
+    },
+    {
+      title: 'Institutions',
+      url: '/dashboard/institutions',
+      icon: School,
+    },
+    {
+      title: 'Settings',
+      url: '#',
+      icon: Settings2,
+      items: [
+        {
+          title: 'General',
+          url: '/dashboard/settings',
+        },
+        {
+          title: 'Security',
+          url: '/dashboard/settings/security',
+        },
+        {
+          title: 'Billing',
+          url: '/dashboard/settings/billing',
+        },
+      ],
+    },
+  ],
   projects: [
     {
       name: 'Design Engineering',
@@ -116,44 +167,31 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const supabase = useSupabaseClient();
-  const [user, setUser] = React.useState<{
-    email: string;
-    name: string;
-    avatar: string;
-  } | null>(null);
-
-  React.useEffect(() => {
-    async function getUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const { data: users } = await supabase
-        .from('users')
-        .select('*')
-        .eq('auth_user_id', user?.id)
-        .limit(1);
-      if (user) {
-        setUser({
-          email: user.email || '',
-          name: users?.[0].full_name || '',
-          avatar: '/avatars/shadcn.jpg',
-        });
-      }
-    }
-    getUser();
-  }, [supabase]);
+  const [activeTrack, setActiveTrack] = React.useState('MentorTrack');
+  // const { getUser } = useUserStore();
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={data.teams} onTrackChange={setActiveTrack} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain
+          items={activeTrack === 'AdminTrack' ? data.adminNav : data.navMain}
+        />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
+      <SidebarFooter>
+        {/* {getUser()?.email && (
+          <NavUser
+            user={{
+              name: getUser()?.name,
+              email: getUser()?.email,
+              avatar: '/avatars/shadcn.jpg',
+            }}
+          />
+        )} */}
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

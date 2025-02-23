@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { Button } from '@/components/ui/button';
@@ -14,8 +15,8 @@ import {
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { signOut } from '@/lib/actions/auth/action';
 import useSupabaseClient from '@/lib/supabase/client';
-import { redirect } from 'next/navigation';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { useUserStore } from '@/lib/store/user-store';
 
 export default function DashboardLayout({
   children,
@@ -23,23 +24,29 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const supabase = useSupabaseClient();
-  const [pathname, setPathname] = useState<string>('');
-  const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
-  useEffect(() => {
-    // Get pathname from URL and format it
-    const path = window.location.pathname.split('/').pop() || 'dashboard';
-    setPathname(path.charAt(0).toUpperCase() + path.slice(1));
-  }, []);
+  const router = useRouter();
+  const pathname = usePathname();
+  const { setUser, getUser } = useUserStore();
 
   useEffect(() => {
-    // Check profile completion
+    // Check profile completion and admin status
     const checkProfile = async () => {
+      const userStoreData = {
+        role: '',
+        isAdmin: false,
+        email: '',
+        phoneNumber: '',
+        id: '',
+        profileComplete: false,
+        name: '',
+      };
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      console.log('user', user);
       if (user) {
         try {
+          userStoreData.email = user.email || '';
+          // Check profile completion
           const { data: isComplete, error: profileError } = await supabase.rpc(
             'is_profile_complete',
             { user_auth_id: user.id }
@@ -48,24 +55,57 @@ export default function DashboardLayout({
           if (profileError) {
             console.error('Error checking profile:', profileError);
           } else {
-            setProfileComplete(isComplete);
+            userStoreData.profileComplete = isComplete;
           }
+
+          // Check if user is admin
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('auth_user_id', user.id)
+            .single();
+
+          userStoreData.role = userData?.role || '';
+          userStoreData.isAdmin = userData?.role === 'admin';
+          userStoreData.phoneNumber = userData?.phone_number || '';
+          userStoreData.id = user.id || '';
+          userStoreData.name = userData?.full_name || '';
+          setUser(userStoreData);
+
+          // If admin and on dashboard root, redirect to users page
+          // if (userData?.role === 'admin' && pathname === '/dashboard') {
+          //   router.push('/dashboard/users');
+          // }
         } catch (error) {
           console.error('Error checking profile:', error);
         }
       } else {
-        setProfileComplete(false);
+        setUser({
+          email: '',
+          role: '',
+          phoneNumber: '',
+          id: '',
+          profileComplete: false,
+        });
       }
     };
     checkProfile();
-  }, [supabase]);
+  }, [supabase, setUser]);
 
-  // Redirect if profile is not complete
   useEffect(() => {
-    if (profileComplete === false) {
-      redirect('/onboarding');
+    const user = getUser();
+    console.log('user', user);
+    if (user.profileComplete === false) {
+      router.push('/onboarding');
+    } else if (user.role === 'admin' && pathname === '/dashboard') {
+      router.push('/dashboard/users');
     }
-  }, [profileComplete]);
+  }, [getUser, router, pathname]);
+
+  const formattedPathname = pathname
+    ? (pathname.split('/').pop() || 'Dashboard').charAt(0).toUpperCase() +
+      (pathname.split('/').pop() || 'Dashboard').slice(1)
+    : 'Dashboard';
 
   return (
     <div>
@@ -77,9 +117,7 @@ export default function DashboardLayout({
               <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-row justify-start items-center">
                   <SidebarTrigger size="default" />
-                  <h1 className="text-lg font-semibold">
-                    {pathname || 'Dashboard'}
-                  </h1>
+                  <h1 className="text-lg font-semibold">{formattedPathname}</h1>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-2">
                   <ThemeSwitcher />
