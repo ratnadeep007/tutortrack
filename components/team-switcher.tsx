@@ -35,15 +35,19 @@ export function TeamSwitcher({
 
   React.useEffect(() => {
     if (isAdmin) {
-      const adminTeam = teams.find((team) => team.name === 'AdminTrack');
-      if (adminTeam) {
-        setActiveTeam(adminTeam);
-        onTrackChange?.(adminTeam.name);
+      const adminView = localStorage.getItem('admin-view');
+      const selectedTeam = teams.find(
+        (team) => team.name === (adminView || 'AdminTrack')
+      );
+      if (selectedTeam) {
+        setActiveTeam(selectedTeam);
+        onTrackChange?.(selectedTeam.name);
       }
     }
   }, [isAdmin, teams, onTrackChange]);
 
   const handleTeamChange = (team: (typeof teams)[0]) => {
+    localStorage.setItem('admin-view', team.name);
     setActiveTeam(team);
     onTrackChange?.(team.name);
   };

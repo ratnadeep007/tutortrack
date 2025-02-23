@@ -71,11 +71,6 @@ export default function DashboardLayout({
           userStoreData.id = user.id || '';
           userStoreData.name = userData?.full_name || '';
           setUser(userStoreData);
-
-          // If admin and on dashboard root, redirect to users page
-          // if (userData?.role === 'admin' && pathname === '/dashboard') {
-          //   router.push('/dashboard/users');
-          // }
         } catch (error) {
           console.error('Error checking profile:', error);
         }
@@ -98,7 +93,17 @@ export default function DashboardLayout({
     if (user.profileComplete === false) {
       router.push('/onboarding');
     } else if (user.role === 'admin' && pathname === '/dashboard') {
-      router.push('/dashboard/users');
+      const adminTrack = localStorage.getItem('admin-view');
+      if (adminTrack && adminTrack === 'AdminTrack') {
+        router.push('/dashboard/users');
+      } else if (adminTrack && adminTrack === 'MentorTrack') {
+        router.push('/dashboard');
+      } else if (adminTrack && adminTrack === 'StudentTrack') {
+        router.push('/dashboard');
+      } else {
+        localStorage.setItem('admin-view', 'AdminTrack');
+        router.push('/dashboard/users');
+      }
     }
   }, [getUser, router, pathname]);
 
