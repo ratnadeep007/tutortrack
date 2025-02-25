@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { BookOpen } from 'lucide-react';
-import OnboardingForm from '@/app/exam/[examId]/onboarding-form';
 import StartExam from '@/app/exam/[examId]/start-exam';
 
 interface PageProps {
@@ -87,7 +86,10 @@ export default async function ExamPage({ params }: PageProps) {
           {registration ? (
             <StartExam examId={examId} registration={registration} />
           ) : (
-            <OnboardingForm examId={examId} userEmail={userEmail} />
+            // <OnboardingForm examId={examId} userEmail={userEmail} />
+            <div>
+              <p>You are not registered for this exam</p>
+            </div>
           )}
         </div>
       </div>

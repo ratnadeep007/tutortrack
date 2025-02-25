@@ -4,9 +4,17 @@ import OnboardingForm from '@/components/onboarding-form';
 import getUserSession from '@/lib/getUserSession';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const { data: session } = await getUserSession();
   const supabase = await createClient();
+
+  // Get role and invited_by from query parameters
+  const role = searchParams.role as string | undefined;
+  const invitedBy = searchParams.invited_by as string | undefined;
 
   if (!session) {
     console.error('No session found');
@@ -51,7 +59,11 @@ export default async function OnboardingPage() {
           </div>
           TutorTrack
         </a>
-        <OnboardingForm user={session.session.user} />
+        <OnboardingForm
+          user={session.session.user}
+          role={role}
+          invitedBy={invitedBy}
+        />
       </div>
     </div>
   );

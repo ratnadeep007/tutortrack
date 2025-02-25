@@ -126,25 +126,81 @@ export async function resetPassword(formData: FormData) {
 interface UpdateUserProfileParams {
   fullName: string;
   phoneNumber: string;
+  role?: string;
+  invitedBy?: string;
+}
+
+// Define a type for the update data
+interface UserUpdateData {
+  full_name: string;
+  phone_number: string;
+  updated_at: string;
+  role?: string;
 }
 
 export async function updateUserProfile({
   fullName,
   phoneNumber,
+  role,
+  invitedBy,
 }: UpdateUserProfileParams) {
   const supabase = await createClient();
+  const authUser = await supabase.auth.getUser();
+  const userId = authUser.data.user?.id;
+
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
+
+  // Prepare update data
+  const updateData: UserUpdateData = {
+    full_name: fullName,
+    phone_number: phoneNumber,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Add role if provided
+  if (role) {
+    updateData.role = role;
+  }
 
   const { error } = await supabase
     .from('users')
-    .update({
-      full_name: fullName,
-      phone_number: phoneNumber,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('auth_user_id', (await supabase.auth.getUser()).data.user?.id);
+    .update(updateData)
+    .eq('auth_user_id', userId);
 
   if (error) {
     console.log('updateUserProfile error', error);
     throw new Error(error.message);
+  }
+
+  // If this is a student being invited by a teacher, create the teacher-student relationship
+  if (role === 'student' && invitedBy) {
+    const { error: relationError } = await supabase
+      .from('teacher_students')
+      .insert({
+        teacher_id: invitedBy,
+        student_id: userId,
+      });
+
+    if (relationError) {
+      console.log('Error creating teacher-student relationship', relationError);
+      // Don't throw error here, as the profile update was successful
+    }
+
+    // Update the invitation status if it exists
+    const { data: userRecord } = await supabase
+      .from('users')
+      .select('email')
+      .eq('auth_user_id', userId)
+      .single();
+
+    if (userRecord?.email) {
+      await supabase
+        .from('student_invitations')
+        .update({ status: 'accepted' })
+        .eq('email', userRecord.email)
+        .eq('invited_by', invitedBy);
+    }
   }
 }

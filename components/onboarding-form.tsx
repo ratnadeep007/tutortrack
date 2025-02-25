@@ -19,9 +19,15 @@ import { cn } from '@/lib/utils';
 interface OnboardingFormProps {
   user: User;
   className?: string;
+  role?: string;
+  invitedBy?: string;
 }
 
-export default function OnboardingForm({ className }: OnboardingFormProps) {
+export default function OnboardingForm({
+  className,
+  role,
+  invitedBy,
+}: OnboardingFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +42,12 @@ export default function OnboardingForm({ className }: OnboardingFormProps) {
     const phoneNumber = formData.get('phoneNumber') as string;
 
     try {
-      await updateUserProfile({ fullName, phoneNumber });
+      await updateUserProfile({
+        fullName,
+        phoneNumber,
+        role: role || undefined,
+        invitedBy: invitedBy || undefined,
+      });
       router.push('/dashboard');
       router.refresh();
     } catch (err) {
@@ -52,7 +63,9 @@ export default function OnboardingForm({ className }: OnboardingFormProps) {
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Complete Your Profile</CardTitle>
           <CardDescription>
-            Please provide your details to continue
+            {role === 'student'
+              ? 'Please provide your details to join as a student'
+              : 'Please provide your details to continue'}
           </CardDescription>
         </CardHeader>
         <CardContent>

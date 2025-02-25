@@ -74,7 +74,7 @@ const data = {
     },
     {
       title: 'Students',
-      url: '#',
+      url: '/dashboard/students',
       icon: Users,
     },
     {
