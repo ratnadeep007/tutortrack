@@ -4,17 +4,18 @@ import OnboardingForm from '@/components/onboarding-form';
 import getUserSession from '@/lib/getUserSession';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function OnboardingPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+interface IPageProps {
+  params: Promise<{ [key: string]: string }>;
+  searchParams: Promise<{ role: string; invited_by: string }>;
+}
+
+export default async function OnboardingPage({ searchParams }: IPageProps) {
   const { data: session } = await getUserSession();
   const supabase = await createClient();
 
   // Get role and invited_by from query parameters
-  const role = searchParams.role as string | undefined;
-  const invitedBy = searchParams.invited_by as string | undefined;
+  const role = (await searchParams).role as string | undefined;
+  const invitedBy = (await searchParams).invited_by as string | undefined;
 
   if (!session) {
     console.error('No session found');
