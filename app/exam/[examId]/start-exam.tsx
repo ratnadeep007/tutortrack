@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 interface StartExamProps {
@@ -16,7 +16,7 @@ interface StartExamProps {
 
 export default function StartExam({ examId, registration }: StartExamProps) {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = getSupabaseBrowserClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

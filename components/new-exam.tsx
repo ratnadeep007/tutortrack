@@ -56,7 +56,6 @@ export default function NewExam() {
     if (examsError) {
       console.error('Error creating exam:', examsError);
     } else if (exam) {
-      console.log(exam);
       useExamStore.getState().addExam(exam as Exam);
     }
     setOpen(false);

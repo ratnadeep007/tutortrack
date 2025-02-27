@@ -89,20 +89,19 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const user = getUser();
-    console.log('user', user);
     if (user.profileComplete === false) {
       router.push('/onboarding');
     } else if (user.role === 'admin' && pathname === '/dashboard') {
       const adminTrack = localStorage.getItem('admin-view');
       if (adminTrack && adminTrack === 'AdminTrack') {
-        router.push('/dashboard/users');
+        router.push('/dashboard/admin/users');
       } else if (adminTrack && adminTrack === 'MentorTrack') {
         router.push('/dashboard');
       } else if (adminTrack && adminTrack === 'StudentTrack') {
         router.push('/dashboard');
       } else {
         localStorage.setItem('admin-view', 'AdminTrack');
-        router.push('/dashboard/users');
+        router.push('/dashboard/admin/users');
       }
     }
   }, [getUser, router, pathname]);
@@ -128,6 +127,7 @@ export default function DashboardLayout({
                   <ThemeSwitcher />
                   <form
                     action={async () => {
+                      localStorage.removeItem('admin-view');
                       await signOut();
                     }}
                   >

@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   UserCog,
   School,
+  Mail,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -105,20 +106,20 @@ const data = {
     },
     {
       title: 'User Management',
-      url: '/dashboard/users',
+      url: '/dashboard/admin/users',
       icon: UserCog,
       items: [
         {
           title: 'All Users',
-          url: '/dashboard/users',
+          url: '/dashboard/admin/users',
         },
         {
           title: 'Teachers',
-          url: '/dashboard/users/teachers',
+          url: '/dashboard/admin/users/teachers',
         },
         {
           title: 'Students',
-          url: '/dashboard/users/students',
+          url: '/dashboard/admin/users/students',
         },
       ],
     },
@@ -126,6 +127,21 @@ const data = {
       title: 'Institutions',
       url: '/dashboard/institutions',
       icon: School,
+    },
+    {
+      title: 'Email Templates',
+      url: '/dashboard/admin/email-templates',
+      icon: Mail,
+      items: [
+        {
+          title: 'All Templates',
+          url: '/dashboard/admin/email-templates',
+        },
+        {
+          title: 'Create Template',
+          url: '/dashboard/admin/email-templates/create',
+        },
+      ],
     },
     {
       title: 'Settings',

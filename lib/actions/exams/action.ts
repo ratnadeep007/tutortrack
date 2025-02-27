@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserIdFromSession } from '@/lib/common';
 
 export async function createExam(data: { name: string; duration: string }) {
-  console.log('Creating exam...', data);
   const supabase = await createClient();
 
   const name = data.name;

@@ -6,42 +6,33 @@ import { createClient } from '@/lib/supabase/server';
 
 interface IPageProps {
   params: Promise<{ [key: string]: string }>;
-  searchParams: Promise<{ role: string; invited_by: string }>;
+  searchParams: Promise<{
+    role: string;
+    invited_by: string;
+  }>;
 }
 
 export default async function OnboardingPage({ searchParams }: IPageProps) {
   const { data: session } = await getUserSession();
   const supabase = await createClient();
 
+  if (!session || !session.session) {
+    redirect('/login?error=no-session');
+  }
+
   // Get role and invited_by from query parameters
   const role = (await searchParams).role as string | undefined;
   const invitedBy = (await searchParams).invited_by as string | undefined;
 
-  if (!session) {
-    console.error('No session found');
-    redirect('/login');
-  }
-
-  console.log('session', session.session?.user.id);
-
   if (!session?.session?.user) {
     redirect('/login');
   }
-
-  const { data: user } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', session.session?.user.id);
-
-  console.log('user', user);
 
   // Check if profile is already complete
   const { data: isComplete, error: profileError } = await supabase.rpc(
     'is_profile_complete',
     { user_auth_id: session.session?.user.id }
   );
-
-  console.log('isComplete', isComplete);
 
   if (profileError) {
     console.error('Error checking profile:', profileError);

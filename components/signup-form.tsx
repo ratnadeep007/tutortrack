@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signup } from '@/lib/actions/auth/action';
+import Link from 'next/link';
 
 export function SignupForm({
   className,
@@ -57,33 +58,15 @@ export function SignupForm({
                     required
                   />
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    required
-                  />
-                </div>
                 <Button type="submit" className="w-full" disabled={isPending}>
                   {isPending ? 'Signing up...' : 'Sign up'}
                 </Button>
               </div>
               <div className="text-center text-sm">
                 Already have an account?{' '}
-                <a href="/login" className="underline underline-offset-4">
+                <Link href="/login" className="underline underline-offset-4">
                   Login
-                </a>
+                </Link>
               </div>
             </div>
           </form>

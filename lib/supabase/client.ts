@@ -6,30 +6,39 @@ export function getSupabaseBrowserClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      auth: {
+        flowType: 'pkce',
+        detectSessionInUrl: true,
+        persistSession: true,
+      },
       cookies: {
         getAll() {
           if (typeof window === 'undefined') {
-            return []
+            return [];
           }
-          const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-            const [key, value] = cookie.trim().split('=');
-            acc.push({
-              name: key,
-              value: decodeURIComponent(value)
-            });
-            return acc;
-          }, [] as Array<{ name: string; value: string }>)
-          return cookies
+          const cookies = document.cookie.split(';').reduce(
+            (acc, cookie) => {
+              const [key, value] = cookie.trim().split('=');
+              acc.push({
+                name: key,
+                value: decodeURIComponent(value),
+              });
+              return acc;
+            },
+            [] as Array<{ name: string; value: string }>
+          );
+          return cookies;
         },
         setAll(cookiesToSet) {
           if (typeof window === 'undefined') {
-            return
+            return;
           }
-          cookiesToSet.forEach(({ name, value, options }) =>
-            document.cookie = `${name}=${encodeURIComponent(value)}; ${options?.toString()}`
-          )
-        }
-      }
+          cookiesToSet.forEach(
+            ({ name, value, options }) =>
+              (document.cookie = `${name}=${encodeURIComponent(value)}; ${options?.toString()}`)
+          );
+        },
+      },
     }
   );
 }

@@ -107,7 +107,6 @@ export default function QuestionsPage() {
     try {
       // Get the current user
       const user = await getUserIdFromBrowser();
-      console.log('user', user);
 
       // Insert the question
       const { data: questionData, error: questionError } = await supabase

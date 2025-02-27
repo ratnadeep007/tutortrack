@@ -9,21 +9,21 @@ export async function login(formData: FormData) {
   const supabase = await createClient();
 
   const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
 
-  if (!email || !password) {
+  if (!email) {
     return {
-      error: 'Email and password are required',
+      error: 'Email is required',
     };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/verify`,
+    },
   });
 
   if (error) {
-    console.log(error.code);
     if (error.code === 'email_not_confirmed') {
       return {
         error: 'Email not confirmed',
@@ -34,9 +34,6 @@ export async function login(formData: FormData) {
       };
     }
   }
-
-  revalidatePath('/', 'layout');
-  redirect('/onboarding');
 }
 
 export async function signup(formData: FormData) {
@@ -44,25 +41,22 @@ export async function signup(formData: FormData) {
 
   // Basic input validation
   const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
 
-  if (!email || !password) {
+  if (!email) {
     return {
-      error: 'Email and password are required',
+      error: 'Email is required',
     };
   }
 
-  const { data: user, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/verify`,
     },
   });
 
   if (error) {
     // Return a user-friendly error message
-    // console.log(error)
     if (error.code == 'unexpected_failure') {
       return {
         error: 'An unexpected error occurred',
@@ -70,13 +64,6 @@ export async function signup(formData: FormData) {
     }
     return {
       error: error.message,
-    };
-  }
-
-  // Check if email confirmation is required
-  if (user?.user?.identities?.length === 0) {
-    return {
-      error: 'Email already registered',
     };
   }
 

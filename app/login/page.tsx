@@ -21,13 +21,40 @@ function LoginContent() {
       }
     };
     checkSession();
-  }, [supabase]);
+  });
 
   useEffect(() => {
     if (searchParams.get('toast') === 'success_signup') {
       toast({
         title: 'Account created successfully',
         description: 'Please check your email to verify your account.',
+      });
+    }
+    if (searchParams.get('toast') === 'success_login') {
+      toast({
+        title: 'Login successful',
+        description: 'Please check your email to login to your account.',
+      });
+    }
+    if (searchParams.get('error') === 'no-session') {
+      toast({
+        title: 'No session found',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
+    }
+    if (searchParams.get('error') === 'sign-in-failed') {
+      toast({
+        title: 'Sign in failed',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
+    }
+    if (searchParams.get('error') === 'verification-failed') {
+      toast({
+        title: 'Verification failed',
+        description: 'Please try again.',
+        variant: 'destructive',
       });
     }
   }, [searchParams, toast]);

@@ -17,8 +17,6 @@ export default async function ExamPage({ params }: PageProps) {
     .eq('id', examId)
     .single();
 
-  console.log('Exam', examError, exam);
-
   if (examError || !exam) {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
@@ -48,9 +46,6 @@ export default async function ExamPage({ params }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser();
   const userEmail = user?.email;
-
-  console.log('User', await supabase.auth.getUser());
-  console.log('User', await supabase.auth.getSession());
 
   if (user) {
     const { data: userData } = await supabase

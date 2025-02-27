@@ -1,5 +1,4 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import {
   Table,
   TableBody,
@@ -28,7 +27,7 @@ export default async function QuestionsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   // Fetch questions for this exam
   const { data: questions, error } = await supabase

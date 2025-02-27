@@ -1,11 +1,11 @@
 import { LoginForm } from '@/components/login-form';
-import getUserSession from '@/lib/getUserSession';
+import { getUserIdFromSession } from '@/lib/common';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  const { data: session } = await getUserSession();
+  const userId = await getUserIdFromSession();
 
-  if (session) {
+  if (userId) {
     redirect('/dashboard');
   } else {
     redirect('/login');

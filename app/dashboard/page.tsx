@@ -21,7 +21,8 @@ export default function DashboardPage() {
       try {
         const response = await getExams();
         if ('error' in response) {
-          throw new Error(response.error);
+          console.log('Failed to fetch exams:', response.error);
+          // throw new Error(response.error);
         }
         setExams(response.data || []);
       } catch (error) {

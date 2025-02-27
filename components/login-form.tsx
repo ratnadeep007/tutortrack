@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +31,8 @@ export function LoginForm({
       const result = await login(formData);
       if (result?.error) {
         setError(result.error);
+      } else {
+        redirect('/login?toast=success_login');
       }
     });
   }
@@ -62,23 +64,6 @@ export function LoginForm({
                     name="email"
                     type="email"
                     placeholder="m@example.com"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <Link
-                      href="/forgot-password"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
                     required
                   />
                 </div>
