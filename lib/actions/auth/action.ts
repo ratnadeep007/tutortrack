@@ -30,7 +30,7 @@ export async function login(formData: FormData) {
       };
     } else {
       return {
-        error: 'Invalid login credentials',
+        error: 'Some error occurred.',
       };
     }
   }
