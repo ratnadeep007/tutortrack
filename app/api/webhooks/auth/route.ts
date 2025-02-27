@@ -17,19 +17,25 @@ export async function POST(req: NextRequest) {
     const bodyJson = JSON.parse(bodyString) as WebhookPayload;
 
     // Verify the webhook signature if a secret is configured
-    const signature = req.headers.get('x-supabase-signature');
+    // console.log('headers', req.headers);
+    const signature = req.headers.get('webhook-signature');
+    console.log('signature', signature);
 
     if (WEBHOOK_SECRET && signature) {
       // Extract the secret key (remove the v1,whsec_ prefix)
       const secretKey = WEBHOOK_SECRET.replace('v1,whsec_', '');
 
       // Create HMAC using the secret key
-      const hmac = createHmac('sha256', Buffer.from(secretKey, 'base64'));
+      const hmac = createHmac('sha256', secretKey);
       hmac.update(bodyString);
       const calculatedSignature = hmac.digest('base64');
+      console.log('calculatedSignature', calculatedSignature);
+
+      const strippedSignature = signature.replace('v1,', '');
+      console.log('strippedSignature', strippedSignature);
 
       // Compare signatures
-      if (calculatedSignature !== signature) {
+      if (calculatedSignature !== strippedSignature) {
         console.error('Invalid webhook signature');
         return NextResponse.json(
           { error: 'Invalid signature' },
