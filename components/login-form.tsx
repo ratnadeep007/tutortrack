@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { login } from '@/lib/actions/auth/action';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 export function LoginForm({
   className,
@@ -71,12 +71,12 @@ export function LoginForm({
                   {isPending ? 'Logging in...' : 'Login'}
                 </Button>
               </div>
-              <div className="text-center text-sm">
+              {/* <div className="text-center text-sm">
                 Don&apos;t have an account?{' '}
                 <Link href="/signup" className="underline underline-offset-4">
                   Sign up
                 </Link>
-              </div>
+              </div> */}
             </div>
           </form>
         </CardContent>
