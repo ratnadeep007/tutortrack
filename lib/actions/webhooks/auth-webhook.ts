@@ -85,7 +85,7 @@ export async function handleSignup(payload: WebhookPayload): Promise<void> {
     const invitedBy = payload.user.invited_by;
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token_hash=${tokenHash}&role=teacher&invited_by=${invitedBy}&token=${token}`;
     console.log('verificationUrl', verificationUrl);
-    await sendMagicLinkEmail(email, email, verificationUrl);
+    // await sendMagicLinkEmail(email, email, verificationUrl);
   } catch (error) {
     console.error('Error handling signup:', error);
   }

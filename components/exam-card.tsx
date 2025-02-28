@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getMyStudents } from '@/lib/actions/teacher-student/action';
 import { registerStudentForExam } from '@/lib/actions/exams/action';
 import { useRouter } from 'next/navigation';
+import { Exam } from '@/lib/interfaces/exam';
 
 interface Student {
   user_id: string | null;
@@ -47,12 +48,7 @@ interface TeacherStudentResponse {
 }
 
 interface ExamCardProps {
-  exam: {
-    id: string;
-    name: string;
-    duration_minutes: number;
-    created_at: string;
-  };
+  exam: Exam;
 }
 
 export function ExamCard({ exam }: ExamCardProps) {
@@ -186,8 +182,8 @@ export function ExamCard({ exam }: ExamCardProps) {
           <p>Duration: {exam.duration_minutes} minutes</p>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between gap-2">
-        <div className="flex gap-2">
+      <CardFooter className="flex flex-col w-full sm:flex-row justify-between gap-2">
+        <div className="flex flex-col w-full sm:flex-row gap-2">
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -257,7 +253,11 @@ export function ExamCard({ exam }: ExamCardProps) {
 
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="destructive" size="sm">
+            <Button
+              className="w-full sm:w-auto"
+              variant="destructive"
+              size="sm"
+            >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>

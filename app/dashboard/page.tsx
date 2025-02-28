@@ -4,17 +4,13 @@ import { useEffect, useState } from 'react';
 import { ExamCard } from '@/components/exam-card';
 import { getExams } from '@/lib/actions/exams/action';
 import { Loader2 } from 'lucide-react';
-
-interface Exam {
-  id: string;
-  name: string;
-  duration_minutes: number;
-  created_at: string;
-}
+import NewExam from '@/components/new-exam';
+import { useExamStore } from '@/lib/store';
 
 export default function DashboardPage() {
-  const [exams, setExams] = useState<Exam[]>([]);
+  // const [exams, setExams] = useState<Exam[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const exams = useExamStore((state) => state.exams);
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -24,7 +20,8 @@ export default function DashboardPage() {
           console.log('Failed to fetch exams:', response.error);
           // throw new Error(response.error);
         }
-        setExams(response.data || []);
+        // setExams(response.data || []);
+        useExamStore.getState().setExams(response.data || []);
       } catch (error) {
         console.error('Failed to fetch exams:', error);
       } finally {
@@ -32,8 +29,12 @@ export default function DashboardPage() {
       }
     };
 
-    fetchExams();
-  }, []);
+    if (exams.length === 0) {
+      fetchExams();
+    }
+
+    console.log('exams', exams);
+  }, [exams, loading]);
 
   if (loading) {
     return (
@@ -45,11 +46,12 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-6">My Exams</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">My Exams</h1>
+        <NewExam />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {exams.map((exam) => (
-          <ExamCard key={exam.id} exam={exam} />
-        ))}
+        {exams?.map((exam) => <ExamCard key={exam.id} exam={exam} />)}
       </div>
     </div>
   );
