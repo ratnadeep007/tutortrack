@@ -30,6 +30,7 @@ export function LoginForm({
     startTransition(async () => {
       const result = await login(formData);
       if (result?.error) {
+        console.log('result', result);
         setError(result.error);
       } else {
         redirect('/login?toast=success_login');

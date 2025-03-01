@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserIdFromSession } from '@/lib/common';
+import { redis } from '@/lib/redis';
 
 export async function getStudents() {
   const supabase = await createClient();
@@ -156,6 +157,22 @@ export async function inviteStudentByEmail(email: string) {
       shouldCreateUser: true,
     },
   });
+
+  // Store the invited student's email in Redis with teacher's ID
+  try {
+    await redis.set(
+      `student:${email}`,
+      JSON.stringify({
+        invitedBy: sessionUser,
+        role: 'student',
+        invitedAt: new Date().toISOString(),
+      }),
+      'EX',
+      24 * 60 * 60
+    ); // Expires in 24 hours
+  } catch (redisError) {
+    console.error('Error storing in Redis:', redisError);
+  }
 
   if (magicLinkError) {
     // If sending magic link fails, still return success since the invitation was created

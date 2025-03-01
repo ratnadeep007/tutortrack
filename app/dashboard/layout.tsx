@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { Button } from '@/components/ui/button';
@@ -24,9 +24,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const supabase = useSupabaseClient();
-  const router = useRouter();
   const pathname = usePathname();
-  const { setUser, getUser } = useUserStore();
+  const { setUser } = useUserStore();
 
   useEffect(() => {
     // Check profile completion and admin status
@@ -86,25 +85,6 @@ export default function DashboardLayout({
     };
     checkProfile();
   }, [supabase, setUser]);
-
-  useEffect(() => {
-    const user = getUser();
-    if (user.profileComplete === false) {
-      router.push('/onboarding');
-    } else if (user.role === 'admin' && pathname === '/dashboard') {
-      const adminTrack = localStorage.getItem('admin-view');
-      if (adminTrack && adminTrack === 'AdminTrack') {
-        router.push('/dashboard/admin/users');
-      } else if (adminTrack && adminTrack === 'MentorTrack') {
-        router.push('/dashboard');
-      } else if (adminTrack && adminTrack === 'StudentTrack') {
-        router.push('/dashboard');
-      } else {
-        localStorage.setItem('admin-view', 'AdminTrack');
-        router.push('/dashboard/admin/users');
-      }
-    }
-  }, [getUser, router, pathname]);
 
   const formattedPathname = pathname
     ? (pathname.split('/').pop() || 'Dashboard').charAt(0).toUpperCase() +

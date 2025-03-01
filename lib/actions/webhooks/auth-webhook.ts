@@ -3,9 +3,9 @@ import {
   sendWelcomeTemplateEmail,
   sendPasswordResetEmail,
   sendMagicLinkEmail,
-  // sendVerificationEmail,
 } from '@/lib/actions/email';
 import { AUTH_WEBHOOK_EVENTS, URLS } from '@/lib/config/webhook-config';
+import { redis } from '@/lib/redis';
 
 // Define types for the webhook payload
 export interface WebhookPayload {
@@ -70,6 +70,45 @@ export async function processAuthWebhook(
   }
 }
 
+async function getRoleFromRedis(email: string): Promise<string> {
+  const maxRetries = 5;
+  const retryInterval = 50; // 1 second between retries
+
+  return new Promise((resolve) => {
+    let retries = 0;
+
+    const checkRedis = async () => {
+      try {
+        const userDataStr = await redis.get(`student:${email}`);
+        if (userDataStr) {
+          const userData = JSON.parse(userDataStr);
+          console.log('userData', userData);
+          resolve(userData.role || 'teacher');
+          return;
+        }
+      } catch (error) {
+        console.log('Error checking Redis for user role:', error);
+      }
+
+      retries++;
+      if (retries >= maxRetries) {
+        resolve('teacher');
+        return;
+      }
+    };
+
+    const interval = setInterval(() => {
+      checkRedis();
+    }, retryInterval);
+
+    // Cleanup interval after max retries
+    setTimeout(() => {
+      clearInterval(interval);
+      resolve('teacher');
+    }, retryInterval * maxRetries);
+  });
+}
+
 /**
  * Handle user signup event
  */
@@ -78,12 +117,13 @@ export async function handleSignup(payload: WebhookPayload): Promise<void> {
     const { email } = payload.user;
     const { token } = payload.email_data;
 
-    // Just log the signup, don't send a verification email
-    // Supabase will handle sending the verification email
-    console.log(`User signed up: ${email}`);
+    // Check Redis for user role
+    const role = await getRoleFromRedis(email);
+
+    console.log(`User signed up: ${email} with role: ${role}`);
     const tokenHash = payload.email_data.token_hash;
-    const invitedBy = payload.user.invited_by;
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token_hash=${tokenHash}&role=teacher&invited_by=${invitedBy}&token=${token}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token_hash=${tokenHash}&role=${role}&token=${token}`;
+
     console.log('verificationUrl', verificationUrl);
     await sendMagicLinkEmail(email, email, verificationUrl);
   } catch (error) {

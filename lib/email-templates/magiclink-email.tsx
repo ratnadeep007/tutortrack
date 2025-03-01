@@ -18,12 +18,14 @@ interface MagicLinkEmailProps {
   userName: string;
   verificationUrl: string;
   previewText?: string;
+  role: 'student' | 'teacher';
 }
 
 export const MagicLinkEmail: React.FC<MagicLinkEmailProps> = ({
   userName,
   verificationUrl,
   previewText = 'Verify your email address to complete your TutorTrack registration',
+  role,
 }) => {
   return (
     <Html>
@@ -45,11 +47,20 @@ export const MagicLinkEmail: React.FC<MagicLinkEmailProps> = ({
 
           <Section style={section}>
             <Text style={text}>Hello {userName},</Text>
-            <Text style={text}>
-              Thank you for registering with TutorTrack! To complete your
-              registration and access your account, please verify your email
-              address by clicking the button below:
-            </Text>
+            {role === 'teacher' && (
+              <Text style={text}>
+                Thank you for registering with TutorTrack! To complete your
+                registration and access your account, please verify your email
+                address by clicking the button below:
+              </Text>
+            )}
+            {role === 'student' && (
+              <Text style={text}>
+                You have been invited to join TutorTrack. To complete your
+                registration and access your account, please verify your email
+                address by clicking the button below:
+              </Text>
+            )}
 
             <Section style={buttonContainer}>
               <Button style={button} href={verificationUrl}>

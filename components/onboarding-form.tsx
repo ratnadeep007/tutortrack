@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { updateUserProfile } from '@/lib/actions/auth/action';
 import { Button } from '@/components/ui/button';
@@ -17,20 +17,17 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 interface OnboardingFormProps {
-  user: User;
+  user: User | null;
   className?: string;
-  role?: string;
-  invitedBy?: string;
 }
 
-export default function OnboardingForm({
-  className,
-  role,
-  invitedBy,
-}: OnboardingFormProps) {
+export default function OnboardingForm({ className }: OnboardingFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role');
+  console.log('role', role);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,7 +43,6 @@ export default function OnboardingForm({
         fullName,
         phoneNumber,
         role: role || undefined,
-        invitedBy: invitedBy || undefined,
       });
       router.push('/dashboard');
       router.refresh();

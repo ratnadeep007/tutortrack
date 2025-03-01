@@ -119,7 +119,8 @@ export async function sendExamNotificationEmail(
 export async function sendMagicLinkEmail(
   to: string,
   name: string,
-  verificationUrl: string
+  verificationUrl: string,
+  role: 'student' | 'teacher' = 'student'
 ) {
   try {
     return sendTemplateEmail({
@@ -129,6 +130,7 @@ export async function sendMagicLinkEmail(
         userName: name,
         verificationUrl,
         previewText: `Verify your email address to complete your TutorTrack registration`,
+        role,
       }),
     });
   } catch (error) {

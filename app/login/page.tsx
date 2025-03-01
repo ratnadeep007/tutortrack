@@ -3,25 +3,13 @@ import { BookOpen } from 'lucide-react';
 import { Suspense } from 'react';
 import { LoginForm } from '@/components/login-form';
 import { Toaster } from '@/components/ui/toaster';
-import { redirect, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
-import useSupabaseClient from '@/lib/supabase/client';
 
 function LoginContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const supabase = useSupabaseClient();
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (session?.session?.user) {
-        redirect('/dashboard');
-      }
-    };
-    checkSession();
-  });
 
   useEffect(() => {
     if (searchParams.get('toast') === 'success_signup') {
