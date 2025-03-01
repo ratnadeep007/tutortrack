@@ -4,8 +4,8 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 
 interface QuestionEditorProps {
-  content: string;
-  onChange: (content: string) => void;
+  content: Record<string, unknown>;
+  onChange: (content: Record<string, unknown>, text: string) => void;
   placeholder?: string;
 }
 
@@ -14,7 +14,7 @@ export function QuestionEditor({ content, onChange }: QuestionEditorProps) {
     extensions: [StarterKit],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChange(editor.getJSON(), editor.getText());
     },
     editorProps: {
       attributes: {
@@ -36,7 +36,7 @@ export function QuestionEditor({ content, onChange }: QuestionEditorProps) {
             variant="outline"
             size="sm"
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={editor.isActive('bold') ? 'is-active' : ''}
+            className={editor.isActive('bold') ? 'bg-secondary' : ''}
           >
             Bold
           </Button>
@@ -44,7 +44,7 @@ export function QuestionEditor({ content, onChange }: QuestionEditorProps) {
             variant="outline"
             size="sm"
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={editor.isActive('italic') ? 'is-active' : ''}
+            className={editor.isActive('italic') ? 'bg-secondary' : ''}
           >
             Italic
           </Button>
@@ -52,7 +52,7 @@ export function QuestionEditor({ content, onChange }: QuestionEditorProps) {
             variant="outline"
             size="sm"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={editor.isActive('bulletList') ? 'is-active' : ''}
+            className={editor.isActive('bulletList') ? 'bg-secondary' : ''}
           >
             Bullet List
           </Button>

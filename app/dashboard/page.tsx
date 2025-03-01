@@ -11,6 +11,7 @@ export default function DashboardPage() {
   // const [exams, setExams] = useState<Exam[] | null>(null);
   const [loading, setLoading] = useState(true);
   const exams = useExamStore((state) => state.exams);
+  const [fetched, setFetched] = useState(false);
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -29,12 +30,13 @@ export default function DashboardPage() {
       }
     };
 
-    if (exams.length === 0) {
+    if (exams.length === 0 && !fetched) {
       fetchExams();
+      setFetched(true);
     }
 
     console.log('exams', exams);
-  }, [exams, loading]);
+  }, [exams, loading, fetched]);
 
   if (loading) {
     return (

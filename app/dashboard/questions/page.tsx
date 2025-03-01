@@ -33,7 +33,7 @@ import { ArrowUpDown, Trash2, Plus, Search } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useExamStore } from '@/lib/store';
-import { getExams } from '@/lib/actions/exams/action';
+// import { getExams } from '@/lib/actions/exams/action';
 
 interface Question {
   id: string;
@@ -161,6 +161,7 @@ export default function QuestionsPage() {
   const [showExamDialog, setShowExamDialog] = useState(false);
   const [selectedExams, setSelectedExams] = useState<Set<string>>(new Set());
   const [examSearchQuery, setExamSearchQuery] = useState('');
+  const [fetched, setFetched] = useState(false);
   const supabase = useSupabaseClient();
   const exams = useExamStore((state) => state.exams);
 
@@ -261,24 +262,24 @@ export default function QuestionsPage() {
     setSelectedExams(newSelection);
   };
 
-  useEffect(() => {
-    // Fetch exams if not in Zustand store
-    const fetchExams = async () => {
-      try {
-        const { data: examsData, error: examsErr } = await getExams();
-        if (examsErr) {
-          throw examsErr;
-        }
-        useExamStore.getState().setExams(examsData || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch exams');
-      }
-    };
+  // useEffect(() => {
+  //   // Fetch exams if not in Zustand store
+  //   const fetchExams = async () => {
+  //     try {
+  //       const { data: examsData, error: examsErr } = await getExams();
+  //       if (examsErr) {
+  //         throw examsErr;
+  //       }
+  //       useExamStore.getState().setExams(examsData || []);
+  //     } catch (err) {
+  //       setError(err instanceof Error ? err.message : 'Failed to fetch exams');
+  //     }
+  //   };
 
-    if (!exams || exams.length === 0) {
-      fetchExams();
-    }
-  }, [exams]);
+  //   if (!exams || exams.length === 0) {
+  //     fetchExams();
+  //   }
+  // }, [exams]);
 
   useEffect(() => {
     async function fetchQuestions() {
@@ -310,8 +311,11 @@ export default function QuestionsPage() {
       }
     }
 
-    fetchQuestions();
-  }, [supabase]);
+    if (questions.length === 0 && !fetched) {
+      fetchQuestions();
+      setFetched(true);
+    }
+  }, [supabase, questions, fetched]);
 
   if (loading) {
     return (

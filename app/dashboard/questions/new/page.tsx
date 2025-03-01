@@ -5,7 +5,7 @@ import { QuestionEditor } from '@/components/question-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Accordion,
   AccordionContent,
@@ -25,15 +25,17 @@ interface Answer {
 interface Question {
   id: string;
   content: string;
+  question_json: Record<string, unknown>;
   answers: Answer[];
   score: number;
 }
 
 export default function QuestionsPage() {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  // const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question>({
     id: '1',
     content: '',
+    question_json: {} as Record<string, unknown>,
     answers: [],
     score: 1,
   });
@@ -76,7 +78,7 @@ export default function QuestionsPage() {
   };
 
   const saveQuestion = async () => {
-    if (currentQuestion.content.trim() === '') {
+    if (Object.keys(currentQuestion.content).length === 0) {
       toast({
         title: 'Error',
         description: 'Question content cannot be empty',
@@ -113,6 +115,7 @@ export default function QuestionsPage() {
         .from('questions')
         .insert({
           question_text: currentQuestion.content,
+          question_json: currentQuestion.question_json,
           score: currentQuestion.score,
           created_by: user,
           is_multiple_choice:
@@ -136,10 +139,11 @@ export default function QuestionsPage() {
 
       if (answersError) throw answersError;
 
-      setQuestions((prev) => [...prev, currentQuestion]);
+      // setQuestions((prev) => [...prev, currentQuestion]);
       setCurrentQuestion({
         id: Date.now().toString(),
         content: '',
+        question_json: {} as Record<string, unknown>,
         answers: [],
         score: 1,
       });
@@ -187,9 +191,13 @@ export default function QuestionsPage() {
                     <div>
                       <Label>Question</Label>
                       <QuestionEditor
-                        content={currentQuestion.content}
-                        onChange={(content) =>
-                          setCurrentQuestion((prev) => ({ ...prev, content }))
+                        content={currentQuestion.question_json}
+                        onChange={(content, text) =>
+                          setCurrentQuestion((prev) => ({
+                            ...prev,
+                            question_json: content,
+                            content: text,
+                          }))
                         }
                         placeholder="Type your question here..."
                       />
@@ -257,61 +265,6 @@ export default function QuestionsPage() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
-        {questions.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Saved Questions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible className="w-full">
-                {questions.map((question) => (
-                  <AccordionItem key={question.id} value={question.id}>
-                    <AccordionTrigger className="text-left">
-                      <div className="flex flex-col items-start gap-1">
-                        <div className="text-sm">
-                          {question.content
-                            .replace(/<[^>]*>/g, '')
-                            .slice(0, 100)}
-                          {question.content.length > 100 ? '...' : ''}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {question.answers.length} options •
-                          {question.answers.filter((a) => a.isCorrect).length >
-                          1
-                            ? ' Multiple correct'
-                            : ' Single correct'}{' '}
-                          • Score: {question.score}
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="pt-4">
-                        <div
-                          dangerouslySetInnerHTML={{ __html: question.content }}
-                        />
-                        <div className="mt-2 space-y-2">
-                          {question.answers.map((answer) => (
-                            <div
-                              key={answer.id}
-                              className={`p-2 rounded ${
-                                answer.isCorrect
-                                  ? 'bg-green-100 dark:bg-green-900'
-                                  : ''
-                              }`}
-                            >
-                              {answer.content}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
