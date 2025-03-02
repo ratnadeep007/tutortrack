@@ -15,7 +15,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-
+import {
+  addStudent,
+  getInvitedByUser,
+  updateStudentInvitationStatus,
+} from '@/lib/actions/teacher-student/action';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 interface OnboardingFormProps {
   user: User | null;
   className?: string;
@@ -37,13 +42,45 @@ export default function OnboardingForm({ className }: OnboardingFormProps) {
     const formData = new FormData(e.currentTarget);
     const fullName = formData.get('fullName') as string;
     const phoneNumber = formData.get('phoneNumber') as string;
+    const supabase = getSupabaseBrowserClient();
+    const user = await supabase.auth.getUser();
 
     try {
+      // Check if user already exists in users table
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('auth_user_id', user.data.user?.id)
+        .single();
+
+      if (userCheckError && userCheckError.code !== 'PGRST116') {
+        // PGRST116 is "not found" which is expected for new users
+        throw new Error(userCheckError.message);
+      }
+
+      console.log('role 1', role, existingUser);
       await updateUserProfile({
         fullName,
         phoneNumber,
+        invitedBy: existingUser.user_id || '',
         role: role || undefined,
       });
+      console.log('role 2', role);
+      if (role === 'student') {
+        const emailId = user.data.user?.email || '';
+        console.log('emailId', emailId);
+        const { error: inviteError } =
+          await updateStudentInvitationStatus(emailId);
+        if (inviteError) {
+          throw new Error(inviteError);
+        }
+        console.log('completed student update', inviteError);
+        const result = await getInvitedByUser(emailId);
+        console.log('result', result);
+        if ('user_id' in result && result.user_id) {
+          await addStudent(result.user_id, user.data.user?.id || '');
+        }
+      }
       router.push('/dashboard');
       router.refresh();
     } catch (err) {

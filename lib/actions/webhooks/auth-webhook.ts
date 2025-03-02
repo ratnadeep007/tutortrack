@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import {
   sendWelcomeTemplateEmail,
   sendPasswordResetEmail,
-  sendMagicLinkEmail,
+  // sendMagicLinkEmail,
 } from '@/lib/actions/email';
 import { AUTH_WEBHOOK_EVENTS, URLS } from '@/lib/config/webhook-config';
 import { redis } from '@/lib/redis';
@@ -116,16 +116,16 @@ export async function handleSignup(payload: WebhookPayload): Promise<void> {
   try {
     const { email } = payload.user;
     const { token } = payload.email_data;
+    const { token_hash: tokenHash } = payload.email_data;
 
     // Check Redis for user role
     const role = await getRoleFromRedis(email);
 
     console.log(`User signed up: ${email} with role: ${role}`);
-    const tokenHash = payload.email_data.token_hash;
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token_hash=${tokenHash}&role=${role}&token=${token}`;
 
     console.log('verificationUrl', verificationUrl);
-    await sendMagicLinkEmail(email, email, verificationUrl);
+    // await sendMagicLinkEmail(email, email, verificationUrl);
   } catch (error) {
     console.error('Error handling signup:', error);
   }

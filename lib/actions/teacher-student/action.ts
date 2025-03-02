@@ -67,12 +67,29 @@ export async function getMyStudents() {
   return { data: students.map((s) => s.student) };
 }
 
-export async function addStudent(studentId: string) {
+export async function getInvitedByUser(email: string) {
+  const invite = await redis.get(`student:${email}`);
+  const inviteData = JSON.parse(invite || '{}');
+
   const supabase = await createClient();
-  const sessionUser = await getUserIdFromSession();
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('user_id')
+    .eq('auth_user_id', inviteData.invitedBy)
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return user;
+}
+
+export async function addStudent(teacherId: string, studentId: string) {
+  const supabase = await createClient();
 
   const { error } = await supabase.from('teacher_students').insert({
-    teacher_id: sessionUser,
+    teacher_id: teacherId,
     student_id: studentId,
   });
 
@@ -149,11 +166,31 @@ export async function inviteStudentByEmail(email: string) {
     return { error: createError.message };
   }
 
+  // Get user data from supabase (auth.users)
+  const {
+    data: { user },
+    error: getUserError,
+  } = await supabase.auth.getUser();
+  if (getUserError) {
+    return { error: getUserError.message };
+  }
+  console.log('user', user);
+
+  const { data: authUser, error: authUserError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('auth_user_id', user?.id)
+    .single();
+
+  if (authUserError) {
+    return { error: authUserError.message };
+  }
+
   // Send magic link for signup
   const { error: magicLinkError } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?role=student&invited_by=${sessionUser}`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?role=student&invited_by=${authUser.id}`,
       shouldCreateUser: true,
     },
   });
@@ -163,7 +200,7 @@ export async function inviteStudentByEmail(email: string) {
     await redis.set(
       `student:${email}`,
       JSON.stringify({
-        invitedBy: sessionUser,
+        invitedBy: authUser.user_id,
         role: 'student',
         invitedAt: new Date().toISOString(),
       }),
@@ -182,6 +219,55 @@ export async function inviteStudentByEmail(email: string) {
       warning:
         'Invitation created but there was an issue sending the magic link email',
     };
+  }
+
+  return { success: true };
+}
+
+export async function updateStudentInvitationStatus(email: string) {
+  const supabase = await createClient();
+
+  // Get the invitation data from Redis
+  let invitationData;
+  try {
+    const redisData = await redis.get(`student:${email}`);
+    if (redisData) {
+      invitationData = JSON.parse(redisData);
+    }
+  } catch (redisError) {
+    console.error('Error retrieving from Redis:', redisError);
+  }
+
+  if (!invitationData) {
+    return { error: 'No valid invitation found' };
+  }
+
+  const { data: user, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (userError) {
+    return { error: userError.message };
+  }
+
+  // Update the invitation status in the database
+  const { error: updateError } = await supabase
+    .from('student_invitations')
+    .update({ status: 'completed' })
+    .eq('email', email)
+    .eq('invited_by', user.user_id);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  // Clean up Redis entry since invitation is now accepted
+  try {
+    await redis.del(`student:${email}`);
+  } catch (redisError) {
+    console.error('Error deleting from Redis:', redisError);
   }
 
   return { success: true };

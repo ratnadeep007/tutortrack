@@ -113,8 +113,8 @@ export async function resetPassword(formData: FormData) {
 interface UpdateUserProfileParams {
   fullName: string;
   phoneNumber: string;
+  invitedBy: string;
   role?: string;
-  invitedBy?: string;
 }
 
 // Define a type for the update data
@@ -144,6 +144,7 @@ export async function updateUserProfile({
     full_name: fullName,
     phone_number: phoneNumber,
     updated_at: new Date().toISOString(),
+    role: role,
   };
 
   // Add role if provided
@@ -161,26 +162,27 @@ export async function updateUserProfile({
     throw new Error(error.message);
   }
 
+  console.log('invitedBy', invitedBy);
+  console.log('student_id', userId);
   // If this is a student being invited by a teacher, create the teacher-student relationship
   if (role === 'student' && invitedBy) {
+    const { data: userRecord } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_user_id', userId)
+      .single();
+
     const { error: relationError } = await supabase
       .from('teacher_students')
       .insert({
         teacher_id: invitedBy,
-        student_id: userId,
+        student_id: userRecord?.user_id,
       });
 
     if (relationError) {
       console.log('Error creating teacher-student relationship', relationError);
       // Don't throw error here, as the profile update was successful
     }
-
-    // Update the invitation status if it exists
-    const { data: userRecord } = await supabase
-      .from('users')
-      .select('email')
-      .eq('auth_user_id', userId)
-      .single();
 
     if (userRecord?.email) {
       await supabase

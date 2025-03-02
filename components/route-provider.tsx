@@ -56,8 +56,9 @@ export default function RouteProvider({
 
       if (!isComplete) {
         const role = searchParams.get('role');
+        const invitedBy = searchParams.get('invited_by');
         console.log('Redirecting to onboarding');
-        redirect(`/onboarding?role=${role}`);
+        redirect(`/onboarding?role=${role}&invited_by=${invitedBy}`);
       }
 
       if (isComplete) {
