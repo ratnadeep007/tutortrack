@@ -57,7 +57,7 @@ export default function RouteProvider({
 
       if (isComplete) {
         console.log('Redirecting to dashboard');
-        if (pathname === '/onboarding') {
+        if (pathname === '/onboarding' || pathname === '/login') {
           redirect('/dashboard');
         } else {
           redirect(pathname);

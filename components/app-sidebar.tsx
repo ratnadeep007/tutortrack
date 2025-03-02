@@ -3,16 +3,13 @@ import {
   AudioWaveform,
   Command,
   File,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
   Users,
   LayoutDashboard,
   UserCog,
   School,
   Mail,
+  User,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -26,6 +23,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
+import { NavUser } from './nav-projects';
 // import { useUserStore } from '@/lib/store/user-store';
 
 // This is sample data.
@@ -78,25 +76,6 @@ const data = {
       url: '/dashboard/students',
       icon: Users,
     },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Exams',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-      ],
-    },
   ],
   adminNav: [
     {
@@ -143,41 +122,12 @@ const data = {
         },
       ],
     },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '/dashboard/settings',
-        },
-        {
-          title: 'Security',
-          url: '/dashboard/settings/security',
-        },
-        {
-          title: 'Billing',
-          url: '/dashboard/settings/billing',
-        },
-      ],
-    },
   ],
-  projects: [
+  navUser: [
     {
-      name: 'Design Engineering',
-      url: '#',
-      icon: Frame,
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-    },
-    {
-      name: 'Travel',
-      url: '#',
-      icon: Map,
+      name: 'Profile',
+      url: '/dashboard/profile',
+      icon: User,
     },
   ],
 };
@@ -195,7 +145,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain
           items={activeTrack === 'AdminTrack' ? data.adminNav : data.navMain}
         />
-        {/* <NavProjects projects={data.projects} /> */}
+        <NavUser projects={data.navUser} />
       </SidebarContent>
       <SidebarFooter>
         {/* {getUser()?.email && (
