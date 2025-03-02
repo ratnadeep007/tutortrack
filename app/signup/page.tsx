@@ -1,6 +1,7 @@
 import { BookOpen } from 'lucide-react';
 
 import { SignupForm } from '@/components/signup-form';
+import { Suspense } from 'react';
 
 export default function SignupPage() {
   return (
@@ -12,7 +13,9 @@ export default function SignupPage() {
           </div>
           TutorTrack
         </a>
-        <SignupForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <SignupForm />
+        </Suspense>
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { redirect, usePathname, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useEffect } from 'react';
 
+const routesRedirected = ['/onboarding', '/login'];
+
 export default function RouteProvider({
   children,
 }: {
@@ -17,7 +19,10 @@ export default function RouteProvider({
     const handleRouting = async () => {
       const { data: user, error: userError } = await supabase.auth.getUser();
 
-      if (pathname === '/login' && searchParams.get('redirected') === 'true') {
+      if (
+        routesRedirected.includes(pathname) &&
+        searchParams.get('redirected') === 'true'
+      ) {
         return <>{children}</>;
       }
 
@@ -57,7 +62,7 @@ export default function RouteProvider({
 
       if (isComplete) {
         console.log('Redirecting to dashboard');
-        if (pathname === '/onboarding' || pathname === '/login') {
+        if (routesRedirected.includes(pathname)) {
           redirect('/dashboard');
         } else {
           redirect(pathname);

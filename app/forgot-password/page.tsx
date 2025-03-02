@@ -1,5 +1,6 @@
 import { BookOpen } from 'lucide-react';
 import { ForgotPasswordForm } from '@/components/forgot-password-form';
+import { Suspense } from 'react';
 
 export default function ForgotPasswordPage() {
   return (
@@ -11,7 +12,9 @@ export default function ForgotPasswordPage() {
           </div>
           TutorTrack
         </a>
-        <ForgotPasswordForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ForgotPasswordForm />
+        </Suspense>
       </div>
     </div>
   );

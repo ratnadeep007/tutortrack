@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import RouteProvider from '@/components/route-provider';
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,7 +36,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RouteProvider>{children}</RouteProvider>
+          <Suspense fallback={<div>Loading...</div>}>
+            <RouteProvider>{children}</RouteProvider>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
